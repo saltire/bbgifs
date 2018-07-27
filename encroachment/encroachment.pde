@@ -33,17 +33,17 @@ void cube() {
   for (int i = 0; i < 4; i++) {
     push();
     fill(i % 2 == 0 ? c1 : c2);
-    rotateY(HALF_PI * i);
+    rotateY(TAU / 4 * i);
     translate(0, 0, size / 2);
     rect(0, 0, size, size);
     pop();
   }
 
   // Draw top and bottom (pink).
-  for (int i = 0; i < 2; i++) {
+  for (int i = 1; i < 4; i += 2) {
     push();
     fill(c3);
-    rotateX(HALF_PI + PI * i);
+    rotateX(TAU / 4 * i);
     translate(0, 0, size / 2);
     rect(0, 0, size, size);
     pop();
@@ -78,29 +78,29 @@ void draw_() {
 
   // Starting rotation
   rotateX(-isoAngle); // downward for isometric projection
-  rotateY(QUARTER_PI); // 45 degrees to the right
+  rotateY(TAU / 8); // 45 degrees to the right
 
   float tc = c01(t * 1.1); // inflate t to make the rotation happen a little faster
 
   // Rotations specified in timeline order.
   // Each rotation is relative to all cumulative previous rotations.
-  // rotateY(-HALF_PI * ease(c01(4 * tc), easing)); // Q1 of timeline
-  // rotateZ(HALF_PI  * ease(c01(4 * tc - 1), easing)); // Q2 of timeline
-  // rotateY(HALF_PI  * ease(c01(4 * tc - 2), easing)); // Q3 of timeline
-  // rotateX(-HALF_PI * ease(c01(4 * tc - 3), easing)); // Q4 of timeline
+  // rotateY(-TAU / 4 * ease(c01(4 * tc), easing)); // Q1 of timeline
+  // rotateZ(TAU / 4  * ease(c01(4 * tc - 1), easing)); // Q2 of timeline
+  // rotateY(TAU / 4  * ease(c01(4 * tc - 2), easing)); // Q3 of timeline
+  // rotateX(-TAU / 4 * ease(c01(4 * tc - 3), easing)); // Q4 of timeline
 
   // More intuitive if specified in reverse order,
   // as each rotation can be expressed as if there were no previous rotations in the timeline.
-  rotateX(-HALF_PI * ease(c01(tc * 4 - 3), easing)); // rotate over Q4 of timeline
-  rotateZ(-HALF_PI * ease(c01(tc * 4 - 2), easing)); // rotate over Q3 of timeline
-  rotateX(-HALF_PI * ease(c01(tc * 4 - 1), easing)); // rotate over Q2 of timeline
-  rotateY(-HALF_PI * ease(c01(tc * 4), easing)); // rotate over Q1 of timeline
+  rotateX(-TAU / 4 * ease(c01(tc * 4 - 3), easing)); // rotate over Q4 of timeline
+  rotateZ(-TAU / 4 * ease(c01(tc * 4 - 2), easing)); // rotate over Q3 of timeline
+  rotateX(-TAU / 4 * ease(c01(tc * 4 - 1), easing)); // rotate over Q2 of timeline
+  rotateY(-TAU / 4 * ease(c01(tc * 4), easing)); // rotate over Q1 of timeline
 
   // Alternate way to map to each quarter of the timeline.
-  // rotateY(-HALF_PI * ease(c01(map(tc,   0, .25, 0, 1)), easing)); // Q1 of timeline
-  // rotateZ(HALF_PI  * ease(c01(map(tc, .25,  .5, 0, 1)), easing)); // Q2 of timeline
-  // rotateY(HALF_PI  * ease(c01(map(tc,  .5, .75, 0, 1)), easing)); // Q3 of timeline
-  // rotateX(-HALF_PI * ease(c01(map(tc, .75,   1, 0, 1)), easing)); // Q4 of timeline
+  // rotateY(-TAU / 4 * ease(c01(map(tc,   0, .25, 0, 1)), easing)); // Q1 of timeline
+  // rotateZ(TAU / 4  * ease(c01(map(tc, .25,  .5, 0, 1)), easing)); // Q2 of timeline
+  // rotateY(TAU / 4  * ease(c01(map(tc,  .5, .75, 0, 1)), easing)); // Q3 of timeline
+  // rotateX(-TAU / 4 * ease(c01(map(tc, .75,   1, 0, 1)), easing)); // Q4 of timeline
 
   cube();
   pop(); // end cube rotation
@@ -118,7 +118,7 @@ void draw_() {
 
     push(); // start shard rotation/translation
 
-    rotate(TWO_PI * (i + 1) / 6); // rotate each of the six equally around the center
+    rotate(TAU * (i + 1) / 6); // rotate each of the six equally around the center
     translate(0, -600 + 600 * easeOut(ts)); // start 600 pixels away and move to the center
 
     shard();

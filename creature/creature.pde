@@ -29,18 +29,19 @@ int loopCount = 12;
 float maxLoopRadius = 42;
 int armCount = 12;
 float armLength = 300;
-float waveAmp = PI / 10;
+float waveAmp = TAU / 20;
+float waveLength = 2;
 
 void spiral(float armPhase) {
   beginShape();
   for (int i = 0; i < vertexCount; i++) {
     float pos = i / float(vertexCount - 1);
-    float loopRadius = map(cos(TWO_PI * pos), 1, -1, 0, maxLoopRadius) * sqrt(pos);
-    float loopPhase = (loopCount * TWO_PI * pos) - (4 * TWO_PI * t) - armPhase;
+    float loopRadius = map(cos(TAU * pos), 1, -1, 0, maxLoopRadius) * sqrt(pos);
+    float loopPhase = (loopCount * TAU * pos) - (4 * TAU * t) - armPhase;
     float x = loopRadius * cos(loopPhase);
     float y = (-armLength * pos) + (loopRadius * sin(loopPhase));
 
-    float wavePhase = waveAmp * sin((TWO_PI * t) - (PI * pos));
+    float wavePhase = waveAmp * sin(TAU * (t - (pos / waveLength)));
     float xx = (x * cos(wavePhase)) + (y * sin(wavePhase));
     float yy = (y * cos(wavePhase)) - (x * sin(wavePhase));
 
@@ -54,7 +55,7 @@ void draw_() {
   push();
   translate(width / 2, height / 2);
   for (int i = 0; i < armCount; i++) {
-    float armPhase = TWO_PI * i / armCount;
+    float armPhase = TAU * i / armCount;
     push();
     rotate(armPhase);
     spiral(armPhase);
