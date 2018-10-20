@@ -18,6 +18,7 @@ void setup() {
   ortho();
   noiseSeed(2);
   noiseDetail(10, .5);
+  ellipseMode(RADIUS);
 
   // Pregenerate Perlin noise values for each cell.
   cells = new float[cellCount][cellCount];
@@ -38,7 +39,7 @@ int arcVertices = 10;
 color bkgdColor = #242624;
 color topColor = #484c46;
 color[] colors = { #e57272, #e5a667, #e5e567, #a2d86c, #72ace5, #ac72e5 };
-float planeOffset = 15;
+float planeOffset = 7;
 
 boolean cell(int x, int y, float chance) {
   return cells[(x + cellCount) % cellCount][(y + cellCount) % cellCount] < chance;
@@ -53,31 +54,31 @@ void drawGround(boolean lc, boolean ltc, boolean tc) {
     noStroke();
     if (!lc && !ltc && !tc) {
       beginShape();
-        vertex(0, -1);
+        vertex(0, -.5);
         vertex(0, 0);
-        vertex(-1, 0);
+        vertex(-.5, 0);
         for (int i = 0; i <= arcVertices; i++) {
           float pos = i / float(arcVertices) * TAU / 4;
-          vertex(-cos(pos), -sin(pos));
+          vertex(-.5 * cos(pos), -.5 * sin(pos));
         }
       endShape();
     }
     else {
-      rect(-1, -1, 1, 1);
+      rect(-.5, -.5, .5, .5);
     }
   pop();
 
   push();
     noFill();
     if (!lc && !ltc && !tc) {
-      arc(0, 0, 2, 2, TAU / 2, TAU * 3 / 4);
+      arc(0, 0, .5, .5, TAU / 2, TAU * 3 / 4);
     }
     else {
       if (!lc && !ltc) {
-        line(-1, 0, -1, -1);
+        line(-.5, 0, -.5, -.5);
       }
       if (!ltc && !tc) {
-        line(-1, -1, 0, -1);
+        line(-.5, -.5, 0, -.5);
       }
     }
   pop();
@@ -88,19 +89,19 @@ void drawHole(boolean lc, boolean ltc, boolean tc) {
     push();
       beginShape();
         noStroke();
-        vertex(-1, 0);
-        vertex(-1, -1);
-        vertex(0, -1);
+        vertex(-.5, 0);
+        vertex(-.5, -.5);
+        vertex(0, -.5);
         for (int i = 0; i <= arcVertices; i++) {
           float pos = i / float(arcVertices) * TAU / 4;
-          vertex(-sin(pos), -cos(pos));
+          vertex(-.5 * sin(pos), -.5 * cos(pos));
         }
       endShape();
     pop();
 
     push();
       noFill();
-      arc(0, 0, 2, 2, TAU / 2, TAU * 3 / 4);
+      arc(0, 0, .5, .5, TAU / 2, TAU * 3 / 4);
     pop();
   }
 }
@@ -109,7 +110,7 @@ void drawPlane() {
   for (int x = 0; x < cellCount; x++) {
     for (int y = 0; y < cellCount; y++) {
       push();
-        translate(x * 2, y * 2);
+        translate(x, y);
 
         if (cell(x, y)) {
           drawGround(cell(x - 1, y), cell(x - 1, y - 1), cell(x, y - 1));
@@ -174,8 +175,8 @@ void drawFrond(float phase, color fillColor) {
   push();
     stroke(topColor);
     fill(fillColor);
-    arc(xs[0], ys[0], frondWidth, frondWidth, TAU / 4, TAU * 3 / 4);
-    arc(xs[points - 1], ys[points - 1], frondWidth, frondWidth, -TAU / 4, TAU / 4);
+    arc(xs[0], ys[0], frondWidth / 2, frondWidth / 2, TAU / 4, TAU * 3 / 4);
+    arc(xs[points - 1], ys[points - 1], frondWidth / 2, frondWidth / 2, -TAU / 4, TAU / 4);
   pop();
 
   push();
@@ -233,16 +234,16 @@ void draw_() {
     translate(width / 2, height / 2);
 
     rotateX(TAU / 4 - isoAngle); // upward for isometric projection with Z pointing up
-    rotateZ(-TAU / 8); // 45 degrees counter-clockwise
+    rotateZ(TAU / 8); // 45 degrees counter-clockwise
 
-    scale(cellSize / 2);
-    translate(-cellCount + 1, -cellCount + 1);
+    scale(cellSize);
+    translate(-cellCount / 2, -cellCount / 2);
 
     for (int p = 0; p <= colors.length; p++) {
       push();
         fill(p == 0 ? topColor : phaseColor(colors.length - p));
         stroke(topColor);
-        strokeWeight(2 / cellSize);
+        strokeWeight(1 / cellSize);
         translate(0, 0, -planeOffset * p / cellSize);
         drawPlane();
       pop();
@@ -253,12 +254,12 @@ void draw_() {
       for (int y = 0; y < cellCount; y++) {
         if (cell(x, y, .3)) {
           push();
-            translate(x * 2, y * 2);
+            translate(x, y);
 
             // reset rotation and scale
-            rotateZ(TAU / 8);
-            rotateX(-(TAU / 4 - isoAngle));
-            scale(2 / cellSize);
+            rotateZ(-TAU / 8);
+            rotateX(-TAU / 4 + isoAngle);
+            scale(1 / cellSize);
 
             drawPlant();
           pop();
