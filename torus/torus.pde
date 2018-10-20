@@ -8,8 +8,8 @@ void setup() {
 }
 
 
-float R = 200;
-float r = 100;
+float R = 200; // radius of torus to center of cross-section
+float r = 100; // radius of cross-section
 int circles = 16;
 int vertices = 36;
 
