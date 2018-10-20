@@ -34,11 +34,11 @@ void draw_() {
       float y = (j + .5) * sp;
       float tt = -t - 0.00031 * (x * x + y * y);
       tt = (tt + 1000) % 1;
-      tt = map(cos(TWO_PI * tt), 1, -1, 0, 1);
+      tt = norm(cos(TAU * tt), 1, -1);
       tt = ease(tt, 5);
       push();
       translate(x, y);
-      rotate(HALF_PI * (i + j));
+      rotate(TAU / 4 * (i + j));
       thing(tt);
       pop();
     }

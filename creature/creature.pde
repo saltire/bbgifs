@@ -117,7 +117,7 @@ void draw() {
       }
     }
     else {
-      t = map((frameCount - 1) % numFrames, 0, numFrames, 0, 1);
+      t = norm((frameCount - 1) % numFrames, 0, numFrames);
     }
 
     draw_();
@@ -133,7 +133,7 @@ void draw() {
     c = 0;
     for (int sa = 0; sa < samplesPerFrame; sa++) {
       // For each sample, set the time somewhere between the frame and (frame + shutterAngle).
-      t = map(frameCount - 1 + sa * shutterAngle / samplesPerFrame, 0, numFrames, 0, 1);
+      t = norm(frameCount - 1 + sa * shutterAngle / samplesPerFrame, 0, numFrames);
       draw_();
 
       // Add the value of this sample to the result.

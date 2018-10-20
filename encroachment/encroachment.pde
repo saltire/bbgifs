@@ -97,10 +97,10 @@ void draw_() {
   rotateY(-TAU / 4 * ease(c01(tc * 4), easing)); // rotate over Q1 of timeline
 
   // Alternate way to map to each quarter of the timeline.
-  // rotateY(-TAU / 4 * ease(c01(map(tc,   0, .25, 0, 1)), easing)); // Q1 of timeline
-  // rotateZ(TAU / 4  * ease(c01(map(tc, .25,  .5, 0, 1)), easing)); // Q2 of timeline
-  // rotateY(TAU / 4  * ease(c01(map(tc,  .5, .75, 0, 1)), easing)); // Q3 of timeline
-  // rotateX(-TAU / 4 * ease(c01(map(tc, .75,   1, 0, 1)), easing)); // Q4 of timeline
+  // rotateY(-TAU / 4 * ease(c01(norm(tc,   0, .25)), easing)); // Q1 of timeline
+  // rotateZ(TAU / 4  * ease(c01(norm(tc, .25,  .5)), easing)); // Q2 of timeline
+  // rotateY(TAU / 4  * ease(c01(norm(tc,  .5, .75)), easing)); // Q3 of timeline
+  // rotateX(-TAU / 4 * ease(c01(norm(tc, .75,   1)), easing)); // Q4 of timeline
 
   cube();
   pop(); // end cube rotation
@@ -109,7 +109,7 @@ void draw_() {
   // SHARDS
 
   // ts = c01(t * 1.25 - 0.25); // map t to move faster, and shift it so it ends at the same time
-  float ts = c01(map(t, .2, 1, 0, 1)); // alternate mapping, with similar results
+  float ts = c01(norm(t, .2, 1)); // alternate mapping, with similar results
 
   for (int i = 0; i < 6; i++) {
     fill(c1);
@@ -182,7 +182,7 @@ void draw() {
       }
     }
     else {
-      t = map((frameCount - 1) % numFrames, 0, numFrames, 0, 1);
+      t = norm((frameCount - 1) % numFrames, 0, numFrames);
     }
 
     draw_();
@@ -198,7 +198,7 @@ void draw() {
     c = 0;
     for (int sa = 0; sa < samplesPerFrame; sa++) {
       // For each sample, set the time somewhere between the frame and (frame + shutterAngle).
-      t = map(frameCount - 1 + sa * shutterAngle / samplesPerFrame, 0, numFrames, 0, 1);
+      t = norm(frameCount - 1 + sa * shutterAngle / samplesPerFrame, 0, numFrames);
       draw_();
 
       // Add the value of this sample to the result.

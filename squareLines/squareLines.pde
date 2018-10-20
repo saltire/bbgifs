@@ -24,8 +24,8 @@ float amount = 30;
 void strip(float q) {
   for (int i = 0; i < lines; i++) {
     float qq = i / float(lines - 1);
-    float amt = sin(PI * qq) * amount;
-    float y = map(i, 0, lines - 1, -size / 2, size / 2) + amt * sin(TWO_PI * q - TWO_PI * qq);
+    float amt = sin(TAU / 2 * qq) * amount;
+    float y = map(i, 0, lines - 1, -size / 2, size / 2) + amt * sin(TAU * q - TAU * qq);
     line(-sWidth / 2, y, sWidth / 2, y);
   }
 }

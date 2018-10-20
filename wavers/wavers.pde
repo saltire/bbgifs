@@ -33,7 +33,7 @@ void circ(float r, float phase, boolean black) {
 
     float rot = rotMax * sin(TWO_PI * t + phase - twist * y / r);
 
-    float briteness = c01(map(x * sin(rot), -rMax, rMax, 0, 1));
+    float briteness = c01(norm(x * sin(rot), -rMax, rMax));
     briteness = lerp(220, 20, briteness);
     stroke(black ? briteness : 250);
 

@@ -47,7 +47,7 @@ void draw() {
       }
     }
     else {
-      t = map((frameCount - 1) % numFrames, 0, numFrames, 0, 1);
+      t = norm((frameCount - 1) % numFrames, 0, numFrames);
     }
 
     draw_();

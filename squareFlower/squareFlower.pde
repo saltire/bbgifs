@@ -19,7 +19,7 @@ int count = 14;
 float maxSize = 340;
 
 float easeSin(float g, float easing){
-  return lerp(-.5, .5, ease(map(sin(g), -1, 1, 0, 1), easing));
+  return lerp(-.5, .5, ease(norm(sin(g), -1, 1), easing));
 }
 
 void draw_() {
