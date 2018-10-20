@@ -19,11 +19,19 @@ void setup() {
   noiseSeed(2);
   noiseDetail(10, .5);
 
+  // Pregenerate Perlin noise values for each cell.
+  cells = new float[cellCount][cellCount];
+  for (int x = 0; x < cellCount; x++) {
+    for (int y = 0; y < cellCount; y++) {
+      cells[x][y] = tilingNoise(norm(x, 0, cellCount), norm(y, 0, cellCount), noiseScale);
+    }
+  }
+
   result = new int[width * height][3];
 }
 
-
-int cells = 30;
+float[][] cells;
+int cellCount = 30;
 float cellSize = 50;
 float noiseScale = 2;
 int arcVertices = 10;
@@ -33,7 +41,7 @@ color[] colors = { #e57272, #e5a667, #e5e567, #a2d86c, #72ace5, #ac72e5 };
 float planeOffset = 15;
 
 boolean cell(int x, int y, float chance) {
-  return tilingNoise(norm(x, 0, cells), norm(y, 0, cells), noiseScale) < chance;
+  return cells[(x + cellCount) % cellCount][(y + cellCount) % cellCount] < chance;
 }
 
 boolean cell(int x, int y) {
@@ -98,8 +106,8 @@ void drawHole(boolean lc, boolean ltc, boolean tc) {
 }
 
 void drawPlane() {
-  for (int x = 0; x < cells; x++) {
-    for (int y = 0; y < cells; y++) {
+  for (int x = 0; x < cellCount; x++) {
+    for (int y = 0; y < cellCount; y++) {
       push();
         translate(x * 2, y * 2);
 
@@ -228,7 +236,7 @@ void draw_() {
     rotateZ(-TAU / 8); // 45 degrees counter-clockwise
 
     scale(cellSize / 2);
-    translate(-cells + 1, -cells + 1);
+    translate(-cellCount + 1, -cellCount + 1);
 
     for (int p = 0; p <= colors.length; p++) {
       push();
@@ -241,8 +249,8 @@ void draw_() {
     }
 
     // draw plants
-    for (int x = 0; x < cells; x++) {
-      for (int y = 0; y < cells; y++) {
+    for (int x = 0; x < cellCount; x++) {
+      for (int y = 0; y < cellCount; y++) {
         if (cell(x, y, .3)) {
           push();
             translate(x * 2, y * 2);
