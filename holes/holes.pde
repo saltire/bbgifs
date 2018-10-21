@@ -1,7 +1,7 @@
 // True to save image files.
 boolean recording = false;
 // If not recording, true to control animation with mouse; false to play on loop.
-boolean mouseControl = false;
+boolean mouseControl = true;
 
 // Target frame count, and thus speed, for the recorded animation.
 int numFrames = 300;
@@ -9,13 +9,13 @@ int numFrames = 300;
 // Each frame will be an average of these. A higher value gives more of a motion blur effect.
 int samplesPerFrame = 4;
 // Time period, in frames, over which to spread out the samples.
-float shutterAngle = .6;
+float shutterAngle = .3;
 
 void setup() {
   size(750, 750, P3D);
   pixelDensity(recording ? 1 : 2);
   smooth(8);
-  ortho();
+  ortho(-width / 2, width / 2, -height / 2, height / 2, -10000, 10000);
   noiseSeed(2);
   noiseDetail(10, .5);
   ellipseMode(RADIUS);
@@ -33,14 +33,15 @@ void setup() {
 
 float[][] cells;
 int cellCount = 20;
-float cellSize = 90;
+int cellMargin = 5;
+float cellSize = 70;
 float noiseScale = 2.5;
 int arcVertices = 10;
 color bkgdColor = #242624;
 color topColor = #484c46;
 color[] colors = { #e57272, #e5a667, #e5e567, #a2d86c, #72ace5, #ac72e5 };
-float planeOffset = 12;
-float colorSpeed = 3;
+float planeOffset = cellSize / 8;
+int colorSpeed = 3;
 
 boolean cell(int x, int y, float chance) {
   return cells[(x + cellCount) % cellCount][(y + cellCount) % cellCount] < chance;
@@ -108,8 +109,8 @@ void drawHole(boolean lc, boolean ltc, boolean tc) {
 }
 
 void drawPlane(int cellOffset) {
-  for (int x = 0; x < cellCount; x++) {
-    for (int y = 0; y < cellCount; y++) {
+  for (int x = -cellMargin; x < cellCount + cellMargin; x++) {
+    for (int y = -cellMargin; y < cellCount + cellMargin; y++) {
       push();
         translate(x, y);
 
@@ -143,8 +144,8 @@ void drawPlane(int cellOffset) {
 
 int fronds = 5;
 int points = 10;
-float frondLength = 60;
-float frondWidth = 8;
+float frondLength = cellSize * 1.2;
+float frondWidth = cellSize / 10;
 float frondSpread = TAU / 36;
 float frondPhaseVar = 3;
 float frondWaveAmp = .1;
@@ -217,15 +218,15 @@ void drawPlant() {
       rotateZ(-TAU / 4 + frondAngle);
       // Move closer to the camera.
       // Using a multiple of f because apparently f isn't enough at some distances.
-      translate(0, 0, f * 100);
+      translate(0, 0, f * 50);
 
       drawFrond(-frondAngle * frondPhaseVar, phaseColor(f));
     pop();
   }
 }
 
-float flowerSize = 15;
-float petalSize = 10;
+float flowerSize = cellSize / 6;
+float petalSize = cellSize / 10;
 
 void drawPetals(int count, float radius, float colorOffset) {
   for (int p = 0; p < count; p++) {
@@ -240,6 +241,7 @@ void drawPetals(int count, float radius, float colorOffset) {
 void drawFlower(boolean large) {
   push();
     translate(0, 0, 100);
+    stroke(topColor);
 
     if (large) {
       drawPetals(6, flowerSize, 0);
@@ -301,8 +303,8 @@ void draw_() {
     }
 
     // draw plants
-    for (int x = 0; x < cellCount; x++) {
-      for (int y = 0; y < cellCount; y++) {
+    for (int x = -cellMargin; x < cellCount + cellMargin; x++) {
+      for (int y = -cellMargin; y < cellCount + cellMargin; y++) {
         int cx = x + cellOffset;
         int cy = y + cellOffset;
 

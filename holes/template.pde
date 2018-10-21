@@ -86,7 +86,7 @@ void draw() {
     updatePixels();
 
     // Save frame to disk and exit if finished.
-    saveFrame("f###.gif");
+    saveFrame("gif/f###.gif");
     if (frameCount == numFrames) {
       exit();
     }
