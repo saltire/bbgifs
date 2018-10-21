@@ -87,6 +87,7 @@ void draw() {
 
     // Save frame to disk and exit if finished.
     saveFrame("gif/f###.gif");
+    println(frameCount + "/" + numFrames);
     if (frameCount == numFrames) {
       exit();
     }

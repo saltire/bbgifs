@@ -1,7 +1,7 @@
 // True to save image files.
 boolean recording = false;
 // If not recording, true to control animation with mouse; false to play on loop.
-boolean mouseControl = true;
+boolean mouseControl = false;
 
 // Target frame count, and thus speed, for the recorded animation.
 int numFrames = 300;
@@ -34,7 +34,7 @@ void setup() {
 float[][] cells;
 int cellCount = 20;
 int cellMargin = 5;
-float cellSize = 70;
+float cellSize = 90;
 float noiseScale = 2.5;
 int arcVertices = 10;
 color bkgdColor = #242624;
