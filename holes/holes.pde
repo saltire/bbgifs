@@ -4,7 +4,7 @@ boolean recording = false;
 boolean mouseControl = false;
 
 // Target frame count, and thus speed, for the recorded animation.
-int numFrames = 60;
+int numFrames = 600;
 // Number of samples to take per frame when recording.
 // Each frame will be an average of these. A higher value gives more of a motion blur effect.
 int samplesPerFrame = 4;
@@ -32,7 +32,7 @@ void setup() {
 }
 
 float[][] cells;
-int cellCount = 30;
+int cellCount = 32;
 float cellSize = 50;
 float noiseScale = 2;
 int arcVertices = 10;
@@ -106,30 +106,33 @@ void drawHole(boolean lc, boolean ltc, boolean tc) {
   }
 }
 
-void drawPlane() {
+void drawPlane(int cellOffset) {
   for (int x = 0; x < cellCount; x++) {
     for (int y = 0; y < cellCount; y++) {
       push();
         translate(x, y);
 
-        if (cell(x, y)) {
-          drawGround(cell(x - 1, y), cell(x - 1, y - 1), cell(x, y - 1));
+        int cx = x + cellOffset;
+        int cy = y + cellOffset;
+
+        if (cell(cx, cy)) {
+          drawGround(cell(cx - 1, cy), cell(cx - 1, cy - 1), cell(cx, cy - 1));
           rotateZ(TAU / 4);
-          drawGround(cell(x, y - 1), cell(x + 1, y - 1), cell(x + 1, y));
+          drawGround(cell(cx, cy - 1), cell(cx + 1, cy - 1), cell(cx + 1, cy));
           rotateZ(TAU / 4);
-          drawGround(cell(x + 1, y), cell(x + 1, y + 1), cell(x, y + 1));
+          drawGround(cell(cx + 1, cy), cell(cx + 1, cy + 1), cell(cx, cy + 1));
           rotateZ(TAU / 4);
-          drawGround(cell(x, y + 1), cell(x - 1, y + 1), cell(x - 1, y));
+          drawGround(cell(cx, cy + 1), cell(cx - 1, cy + 1), cell(cx - 1, cy));
           rotateZ(TAU / 4);
         }
         else {
-          drawHole(cell(x - 1, y), cell(x - 1, y - 1), cell(x, y - 1));
+          drawHole(cell(cx - 1, cy), cell(cx - 1, cy - 1), cell(cx, cy - 1));
           rotateZ(TAU / 4);
-          drawHole(cell(x, y - 1), cell(x + 1, y - 1), cell(x + 1, y));
+          drawHole(cell(cx, cy - 1), cell(cx + 1, cy - 1), cell(cx + 1, cy));
           rotateZ(TAU / 4);
-          drawHole(cell(x + 1, y), cell(x + 1, y + 1), cell(x, y + 1));
+          drawHole(cell(cx + 1, cy), cell(cx + 1, cy + 1), cell(cx, cy + 1));
           rotateZ(TAU / 4);
-          drawHole(cell(x, y + 1), cell(x - 1, y + 1), cell(x - 1, y));
+          drawHole(cell(cx, cy + 1), cell(cx - 1, cy + 1), cell(cx - 1, cy));
           rotateZ(TAU / 4);
         }
       pop();
@@ -145,7 +148,7 @@ float frondSpread = TAU / 36;
 float frondPhaseVar = 3;
 float frondWaveAmp = .1;
 float frondWaveFreq = .75;
-float frondWaveSpeed = 3;
+float frondWaveSpeed = 30;
 
 void drawFrond(float phase, color fillColor) {
   float x, y, r;
@@ -237,7 +240,11 @@ void draw_() {
     rotateZ(TAU / 8); // 45 degrees counter-clockwise
 
     scale(cellSize);
-    translate(-cellCount / 2, -cellCount / 2);
+
+    int cellOffset = floor(cellCount * t);
+    float thisCellOffset = (cellCount * t) % 1;
+
+    translate(-cellCount / 2 - thisCellOffset, -cellCount / 2 - thisCellOffset);
 
     for (int p = 0; p <= colors.length; p++) {
       push();
@@ -245,14 +252,17 @@ void draw_() {
         stroke(topColor);
         strokeWeight(1 / cellSize);
         translate(0, 0, -planeOffset * p / cellSize);
-        drawPlane();
+        drawPlane(cellOffset);
       pop();
     }
 
     // draw plants
     for (int x = 0; x < cellCount; x++) {
       for (int y = 0; y < cellCount; y++) {
-        if (cell(x, y, .3)) {
+        int cx = x + cellOffset;
+        int cy = y + cellOffset;
+
+        if (cell(cx, cy, .3)) {
           push();
             translate(x, y);
 
