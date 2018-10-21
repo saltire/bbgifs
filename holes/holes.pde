@@ -4,7 +4,7 @@ boolean recording = false;
 boolean mouseControl = false;
 
 // Target frame count, and thus speed, for the recorded animation.
-int numFrames = 600;
+int numFrames = 300;
 // Number of samples to take per frame when recording.
 // Each frame will be an average of these. A higher value gives more of a motion blur effect.
 int samplesPerFrame = 4;
@@ -32,14 +32,15 @@ void setup() {
 }
 
 float[][] cells;
-int cellCount = 32;
-float cellSize = 50;
-float noiseScale = 2;
+int cellCount = 20;
+float cellSize = 90;
+float noiseScale = 2.5;
 int arcVertices = 10;
 color bkgdColor = #242624;
 color topColor = #484c46;
 color[] colors = { #e57272, #e5a667, #e5e567, #a2d86c, #72ace5, #ac72e5 };
-float planeOffset = 7;
+float planeOffset = 12;
+float colorSpeed = 3;
 
 boolean cell(int x, int y, float chance) {
   return cells[(x + cellCount) % cellCount][(y + cellCount) % cellCount] < chance;
@@ -142,13 +143,13 @@ void drawPlane(int cellOffset) {
 
 int fronds = 5;
 int points = 10;
-float frondLength = 30;
-float frondWidth = 4;
+float frondLength = 60;
+float frondWidth = 8;
 float frondSpread = TAU / 36;
 float frondPhaseVar = 3;
 float frondWaveAmp = .1;
 float frondWaveFreq = .75;
-float frondWaveSpeed = 30;
+float frondWaveSpeed = 15;
 
 void drawFrond(float phase, color fillColor) {
   float x, y, r;
@@ -214,19 +215,62 @@ void drawPlant() {
     push();
       float frondAngle = (f - (fronds - 1) / 2) * frondSpread;
       rotateZ(-TAU / 4 + frondAngle);
-      translate(0, 0, f);
+      // Move closer to the camera.
+      // Using a multiple of f because apparently f isn't enough at some distances.
+      translate(0, 0, f * 100);
+
       drawFrond(-frondAngle * frondPhaseVar, phaseColor(f));
     pop();
   }
 }
 
-color phaseColor(int colorIndex) {
-  float colorPhase = t * colors.length;
-  float phasedIndex = colorIndex + colorPhase;
+float flowerSize = 15;
+float petalSize = 10;
+
+void drawPetals(int count, float radius, float colorOffset) {
+  for (int p = 0; p < count; p++) {
+    push();
+      fill(phaseColor(p * 6 / count + colorOffset));
+      rotateZ(-TAU * p / count);
+      ellipse(radius, 0, petalSize / 2, petalSize / 2);
+    pop();
+  }
+}
+
+void drawFlower(boolean large) {
+  push();
+    translate(0, 0, 100);
+
+    if (large) {
+      drawPetals(6, flowerSize, 0);
+      push();
+        translate(0, 0, 20);
+        rotateZ(-TAU / 12);
+        drawPetals(6, flowerSize, .5);
+      pop();
+    }
+
+    rotateZ(TAU / 6);
+    translate(0, 0, 40);
+    drawPetals(3, flowerSize / 2, 0);
+    push();
+      translate(0, 0, 20);
+      rotateZ(-TAU / 6);
+      drawPetals(3, flowerSize / 2, .5);
+    pop();
+
+    translate(0, 0, 40);
+    fill(phaseColor(0));
+    ellipse(0, 0, petalSize / 2, petalSize / 2);
+  pop();
+}
+
+color phaseColor(float colorOffset) {
+  float phasedOffset = colors.length * t * colorSpeed + colorOffset;
   return lerpColor(
-    colors[floor(phasedIndex) % colors.length],
-    colors[ceil(phasedIndex) % colors.length],
-    colorPhase % 1);
+    colors[floor(phasedOffset) % colors.length],
+    colors[ceil(phasedOffset) % colors.length],
+    phasedOffset % 1);
 }
 
 void draw_() {
@@ -234,7 +278,7 @@ void draw_() {
   float colorPhase = t * colors.length;
 
   push();
-    translate(width / 2, height / 2);
+    translate(width / 2, height / 2, -5000);
 
     rotateX(TAU / 4 - isoAngle); // upward for isometric projection with Z pointing up
     rotateZ(TAU / 8); // 45 degrees counter-clockwise
@@ -262,18 +306,25 @@ void draw_() {
         int cx = x + cellOffset;
         int cy = y + cellOffset;
 
-        if (cell(cx, cy, .3)) {
-          push();
-            translate(x, y);
+        push();
+          translate(x, y);
 
-            // reset rotation and scale
-            rotateZ(-TAU / 8);
-            rotateX(-TAU / 4 + isoAngle);
-            scale(1 / cellSize);
+          // reset rotation and scale
+          rotateZ(-TAU / 8);
+          rotateX(-TAU / 4 + isoAngle);
+          translate(0, 0, x + y);
+          scale(1 / cellSize);
 
+          if (cell(cx, cy, .31)) {
             drawPlant();
-          pop();
-        }
+          }
+          else if (cell(cx, cy, .35)) {
+            drawFlower(true);
+          }
+          else if (cell(cx, cy, .4)) {
+            drawFlower(false);
+          }
+        pop();
       }
     }
   pop();
