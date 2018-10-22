@@ -1,19 +1,20 @@
 // True to save image files.
-boolean recording = false;
+boolean recording = true;
 // If not recording, true to control animation with mouse; false to play on loop.
 boolean mouseControl = false;
 
 // Target frame count, and thus speed, for the recorded animation.
-int numFrames = 60;
+int numFrames = 260;
 // Number of samples to take per frame when recording.
 // Each frame will be an average of these. A higher value gives more of a motion blur effect.
-int samplesPerFrame = 4;
+int samplesPerFrame = 1;
 // Time period, in frames, over which to spread out the samples.
 float shutterAngle = .3;
 
 
 float[][] cells;
-int cellCount = 60;
+int cellCount = 50;
+int cellMargin = 5;
 float cellsAcross = 30;
 float cellSize;
 
@@ -24,9 +25,11 @@ float noiseScale = 1.5;
 
 color[] colors = { #0E0026, #0E0026, #46104C, #8C1E47, #CC5D28, #FFBB00, #FFBB00 };
 // color[] colors = { #0e0613, #0e0613, #3d1c37, #64284a, #bd4c24, #ff9d1e, #ff9d1e };
+int colorSpeed = 4;
+float colorPulseAmount = .35;
 
 void setup() {
-  size(750, 750, P3D);
+  size(500, 500, P3D);
   pixelDensity(recording ? 1 : 2);
   smooth(8);
   ortho(-width / 2, width / 2, -height / 2, height / 2, -10000, 10000);
@@ -55,8 +58,14 @@ void draw_() {
   rotateZ(TAU / 8); // 45 degrees counter-clockwise
 
   scale(cellSize);
+
+  // animation offsets
+  int cellOffset = floor(cellCount * t);
+  float thisCellOffset = (cellCount * t) % 1;
+
+  translate(-cellCount / 2 - thisCellOffset, -cellCount / 2 - thisCellOffset);
+
   strokeWeight(.5 / cellSize);
-  translate(-cellCount / 2, -cellCount / 2);
 
   for (int l = 0; l < layerCount; l++) {
     push();
@@ -64,7 +73,7 @@ void draw_() {
       float level = norm(l + 1, 0, layerCount + 1);
       stroke(color(255, level * level * 255));
       fill(getColor(level));
-      drawPlane(1 - level);
+      drawPlane(1 - level, cellOffset);
     pop();
   }
 }
@@ -78,6 +87,13 @@ boolean cell(int x, int y) {
 }
 
 color getColor(float colorValue) {
-  float scaledValue = lerp(0, colors.length - 1, ease(colorValue, 1 + sin(TAU * t) * .5));
-  return lerpColor(colors[floor(scaledValue)], colors[ceil(scaledValue)], scaledValue % 1);
+  // pow() affects brightness; ease() more affects contrast.
+  float pulsedValue = pow(colorValue, 1 + sin(TAU * t * colorSpeed) * colorPulseAmount);
+  // float pulsedValue = ease(colorValue, 1 + sin(TAU * t * colorSpeed) * colorPulseAmount);
+
+  float scaledValue = lerp(0, colors.length - 1, pulsedValue);
+  return lerpColor(
+    colors[floor(scaledValue)],
+    colors[ceil(scaledValue)],
+    scaledValue % 1);
 }

@@ -3,14 +3,14 @@ float left = TAU / 2;
 float topleft = TAU * 5 / 8;
 float top = TAU * 3 / 4;
 
-void drawPlane(float level) {
-  for (int x = 0; x < cellCount; x++) {
-    for (int y = 0; y < cellCount; y++) {
+void drawPlane(float level, int cellOffset) {
+  for (int x = -cellMargin; x < cellCount + cellMargin; x++) {
+    for (int y = -cellMargin; y < cellCount + cellMargin; y++) {
       push();
         translate(x, y);
 
-        int cx = x;
-        int cy = y;
+        int cx = x + cellOffset;
+        int cy = y + cellOffset;
 
         // Draw each of the four corners of the cell, in order NW, NE, SE, SW.
         if (cell(cx, cy, level)) {
