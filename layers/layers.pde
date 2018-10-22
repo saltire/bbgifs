@@ -13,8 +13,8 @@ float shutterAngle = .3;
 
 
 float[][] cells;
-int cellCount = 120;
-float cellsAcross = 60;
+int cellCount = 60;
+float cellsAcross = 30;
 float cellSize;
 
 int layerCount = 21;
@@ -26,7 +26,7 @@ color[] colors = { #0E0026, #0E0026, #46104C, #8C1E47, #CC5D28, #FFBB00, #FFBB00
 // color[] colors = { #0e0613, #0e0613, #3d1c37, #64284a, #bd4c24, #ff9d1e, #ff9d1e };
 
 void setup() {
-  size(1000, 1000, P3D);
+  size(750, 750, P3D);
   pixelDensity(recording ? 1 : 2);
   smooth(8);
   ortho(-width / 2, width / 2, -height / 2, height / 2, -10000, 10000);
@@ -77,7 +77,7 @@ boolean cell(int x, int y) {
   return cell(x, y, .5);
 }
 
-color getColor(float colorOffset) {
-  float scaledOffset = lerp(0, colors.length - 1, colorOffset);
-  return lerpColor(colors[floor(scaledOffset)], colors[ceil(scaledOffset)], scaledOffset % 1);
+color getColor(float colorValue) {
+  float scaledValue = lerp(0, colors.length - 1, ease(colorValue, 1 + sin(TAU * t) * .5));
+  return lerpColor(colors[floor(scaledValue)], colors[ceil(scaledValue)], scaledValue % 1);
 }
