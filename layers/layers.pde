@@ -13,17 +13,17 @@ float shutterAngle = .3;
 
 
 float[][] cells;
-int cellCount = 200;
-float cellsAcross = 100;
+int cellCount = 120;
+float cellsAcross = 60;
 float cellSize;
 
-int layerCount = 15;
-float layerHeight = 1.5; // relative to cell size
+int layerCount = 21;
+float layerHeight = .5; // relative to cell size
 
 float noiseScale = 1.5;
 
-// color[] colors = { #390099, #9E0059, #FF0054, #FF5400, #FFBD00 };
-color[] colors = { #0e0613, #3d1c37, #64284a, #bd4c24, #ff9d1e };
+color[] colors = { #0E0026, #0E0026, #46104C, #8C1E47, #CC5D28, #FFBB00, #FFBB00 };
+// color[] colors = { #0e0613, #0e0613, #3d1c37, #64284a, #bd4c24, #ff9d1e, #ff9d1e };
 
 void setup() {
   size(1000, 1000, P3D);
@@ -50,12 +50,11 @@ void setup() {
 void draw_() {
   background(0);
 
-  translate(width / 2, height / 2);
+  translate(width / 2, height / 2, -5000);
   rotateX(TAU / 4 - isoAngle); // upward for isometric projection with Z pointing up
   rotateZ(TAU / 8); // 45 degrees counter-clockwise
 
   scale(cellSize);
-  stroke(255);
   strokeWeight(.5 / cellSize);
   translate(-cellCount / 2, -cellCount / 2);
 
@@ -63,6 +62,7 @@ void draw_() {
     push();
       translate(0, 0, l * layerHeight);
       float level = norm(l + 1, 0, layerCount + 1);
+      stroke(color(255, level * level * 255));
       fill(getColor(level));
       drawPlane(1 - level);
     pop();
