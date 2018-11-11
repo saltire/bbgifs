@@ -4,7 +4,7 @@ boolean recording = false;
 boolean mouseControl = false;
 
 // Target frame count, and thus speed, for the recorded animation.
-int numFrames = 260;
+int numFrames = 240;
 // Number of samples to take per frame when recording.
 // Each frame will be an average of these. A higher value gives more of a motion blur effect.
 int samplesPerFrame = 1;
@@ -12,12 +12,13 @@ int samplesPerFrame = 1;
 float shutterAngle = .3;
 
 
-float[][] cells;
+float[][][] cells;
 int cellCount = 50;
-float noiseScale = 1.5;
+
+int noiseFrames = 24;
 
 int rings = 30;
-int ringSegments = 50;
+int ringSegments = 40;
 int segmentVertices = 5;
 float ringWidth = 100;
 float ringRadius;
@@ -36,21 +37,29 @@ void setup() {
 
   ringRadius = sqrt(width * width + height * height) / 2;
 
-  // Pregenerate Perlin noise values for each cell.
+  // Pregenerate Perlin noise values for each cell, and for each frame of noise.
   noiseSeed(2);
   noiseDetail(10, .5);
-  generateCells(rings, ringSegments);
+  noiseScale = 1.5;
+  offsetRadius = .2;
+  cells = new float[noiseFrames][rings][ringSegments];
+  for (int nf = 0; nf < noiseFrames; nf++) {
+    cells[nf] = generateCells(rings, ringSegments, (float)nf / noiseFrames);
+  }
 
   result = new int[width * height][3];
 }
 
-void generateCells(int xSize, int ySize) {
-  cells = new float[xSize][ySize];
+float[][] generateCells(int xSize, int ySize, float nt) {
+  float[] offsets = getOffsets(nt);
+
+  float[][] newCells = new float[xSize][ySize];
   for (int x = 0; x < xSize; x++) {
     for (int y = 0; y < ySize; y++) {
-      cells[x][y] = tilingNoise(norm(x, 0, xSize), norm(y, 0, ySize), noiseScale);
+      newCells[x][y] = tilingNoise((float)x / xSize, (float)y / ySize, offsets);
     }
   }
+  return newCells;
 }
 
 void draw_() {
@@ -61,16 +70,24 @@ void draw_() {
   int ringOffset = floor(rings * t);
   float thisRingOffset = (rings * t) % 1;
 
+  int noiseFrame = floor(noiseFrames * t);
+  float noiseFrameOffset = (noiseFrames * t) % 1;
+
   // stroke(255);
   noStroke();
   for (int r = rings - 1; r >= 0; r--) {
+    int cr = (r + ringOffset) % rings;
+
     push();
       translate(0, 0, (-r + thisRingOffset) * ringWidth);
 
       float fade = (float)(rings - r) / rings;
 
       for (int s = 0; s < ringSegments; s++) {
-        fill(cells[(r + ringOffset) % rings][s] * 255 * fade);
+        float cell = cells[noiseFrame][cr][s];
+        float nextCell = cells[(noiseFrame + 1) % noiseFrames][cr][s];
+        float value = lerp(cell, nextCell, noiseFrameOffset);
+        fill(value * 255 * fade);
 
         beginShape();
           for (int v = 0; v <= segmentVertices; v++) {
@@ -85,14 +102,6 @@ void draw_() {
       }
     pop();
   }
-}
-
-boolean cell(int x, int y, float chance) {
-  return cells[(x + cellCount) % cellCount][(y + cellCount) % cellCount] < chance;
-}
-
-boolean cell(int x, int y) {
-  return cell(x, y, .5);
 }
 
 color getColor(float colorValue) {
