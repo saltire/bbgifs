@@ -4,35 +4,57 @@ int tileSize = 512;
 float baseR = 2; // radius of torus to center of cross-section
 float baser = 1; // radius of cross-section
 
-// x and y should be between 0 and 1.
-float tilingNoise(float x, float y, float scale) {
+float noiseScale = .5;
+
+int numFrames = 100;
+float offsetRadius = .3;
+
+// u and v should be between 0 and 1.
+float tilingNoise(float u, float v) {
+  return tilingNoise(u, v, 0, 0, 0, noiseScale);
+}
+
+float tilingNoise(float u, float v, float scale) {
+  return tilingNoise(u, v, 0, 0, 0, scale);
+}
+
+float tilingNoise(float u, float v, float ox, float oy, float oz) {
+  return tilingNoise(u, v, ox, oy, oz, noiseScale);
+}
+
+float tilingNoise(float u, float v, float ox, float oy, float oz, float scale) {
   float R = baseR * scale;
   float r = baser * scale;
 
-  // Calculate the 3d coordinates of x,y on the surface of a torus.
+  // Calculate the 3d coordinates of u,v on the surface of a torus.
   // Offset the torus so its corner touches origin instead of its center.
   // This is because the noise() function seems to be mirrored along all its axes.
-  float xx = sin(x * TAU) * (R + sin(y * TAU) * r) + R;
-  float yy = cos(x * TAU) * (R + sin(y * TAU) * r) + R;
-  float zz = cos(y * TAU) * r + r;
-  return noise(xx, yy, zz);
-}
-
-float tilingNoise(float x, float y) {
-  return tilingNoise(x, y, 1);
+  float x = sin(u * TAU) * (R + sin(v * TAU) * r) + R;
+  float y = cos(u * TAU) * (R + sin(v * TAU) * r) + R;
+  float z = cos(v * TAU) * r + r;
+  return noise(x + ox, y + oy, z + oz);
 }
 
 void setup() {
   size(1024, 1024);
   noStroke();
   noiseDetail(4, .75);
+}
 
-  for (int x = 0; x < width; x += cellSize) {
-    for (int y = 0; y < height; y += cellSize) {
-      float tx = norm(x, 0, tileSize);
-      float ty = norm(y, 0, tileSize);
-      fill(tilingNoise(tx, ty, .5) * 255);
-      rect(x, y, cellSize, cellSize);
+void draw() {
+  // Offset the torus in a circular motion along all three axes,
+  // to animate the noise in a loop.
+  float t = (float)(frameCount % numFrames) / numFrames;
+  float ox = (sin(t * TAU) + 1) * offsetRadius;
+  float oy = (cos(t * TAU) + 1) * offsetRadius;
+  float oz = (sin((t + .125) * TAU) + 1) * offsetRadius;
+
+  for (int u = 0; u < width; u += cellSize) {
+    for (int v = 0; v < height; v += cellSize) {
+      float tu = (float)u / tileSize;
+      float tv = (float)v / tileSize;
+      fill(tilingNoise(tu, tv, ox, oy, oz, noiseScale) * 255);
+      rect(u, v, cellSize, cellSize);
     }
   }
 }
