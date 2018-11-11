@@ -15,18 +15,20 @@ float shutterAngle = .3;
 float[][][] cells;
 int cellCount = 50;
 
-int noiseFrames = 24;
+int noiseFrames = 6;
+int noiseSpeed = 4;
 
 int rings = 30;
+int ringRepeats = 2;
 int ringSegments = 40;
 int segmentVertices = 5;
-float ringWidth = 100;
+float ringWidth = 150;
 float ringRadius;
 
 color[] colors = { #0E0026, #0E0026, #46104C, #8C1E47, #CC5D28, #FFBB00, #FFBB00 };
 // color[] colors = { #0e0613, #0e0613, #3d1c37, #64284a, #bd4c24, #ff9d1e, #ff9d1e };
 int colorSpeed = 4;
-float colorPulseAmount = .35;
+float colorPulseAmount = 0;
 
 
 void setup() {
@@ -34,6 +36,10 @@ void setup() {
   pixelDensity(recording ? 1 : 2);
   smooth(8);
   ellipseMode(RADIUS);
+
+  float fov = TAU / 6;
+  float cameraZ = (height / 2) / tan(fov / 2);
+  perspective(fov, width / height, cameraZ, cameraZ * 100);
 
   ringRadius = sqrt(width * width + height * height) / 2;
 
@@ -63,44 +69,49 @@ float[][] generateCells(int xSize, int ySize, float nt) {
 }
 
 void draw_() {
-  background(0);
+  background(colors[0]);
   translate(width / 2, height / 2);
 
   // animation offsets
   int ringOffset = floor(rings * t);
   float thisRingOffset = (rings * t) % 1;
 
-  int noiseFrame = floor(noiseFrames * t);
-  float noiseFrameOffset = (noiseFrames * t) % 1;
+  int noiseFrame = floor(noiseFrames * t * noiseSpeed) % noiseFrames;
+  float noiseFrameOffset = (noiseFrames * t * noiseSpeed) % 1;
+
+  int totalRings = rings * ringRepeats;
 
   // stroke(255);
   noStroke();
-  for (int r = rings - 1; r >= 0; r--) {
-    int cr = (r + ringOffset) % rings;
+  for (int repeat = ringRepeats - 1; repeat >= 0; repeat--) {
+    for (int r = rings - 1; r >= 0; r--) {
+      int cr = (r + ringOffset) % rings;
+      int rr = r + rings * repeat;
 
-    push();
-      translate(0, 0, (-r + thisRingOffset) * ringWidth);
+      push();
+        translate(0, 0, (-rr + thisRingOffset) * ringWidth);
 
-      float fade = (float)(rings - r) / rings;
+        float fade = easeOut((float)(totalRings - rr) / totalRings);
 
-      for (int s = 0; s < ringSegments; s++) {
-        float cell = cells[noiseFrame][cr][s];
-        float nextCell = cells[(noiseFrame + 1) % noiseFrames][cr][s];
-        float value = lerp(cell, nextCell, noiseFrameOffset);
-        fill(value * 255 * fade);
+        for (int s = 0; s < ringSegments; s++) {
+          float cell = cells[noiseFrame][cr][s];
+          float nextCell = cells[(noiseFrame + 1) % noiseFrames][cr][s];
+          float value = lerp(cell, nextCell, noiseFrameOffset);
+          fill(getColor(value * fade));
 
-        beginShape();
-          for (int v = 0; v <= segmentVertices; v++) {
-            float th = (s + (float)v / segmentVertices) / ringSegments * TAU;
-            vertex(sin(th) * ringRadius, cos(th) * ringRadius, 0);
-          }
-          for (int v = segmentVertices; v >= 0; v--) {
-            float th = (s + (float)v / segmentVertices) / ringSegments * TAU;
-            vertex(sin(th) * ringRadius, cos(th) * ringRadius, -ringWidth);
-          }
-        endShape();
-      }
-    pop();
+          beginShape();
+            for (int v = 0; v <= segmentVertices; v++) {
+              float th = (s + (float)v / segmentVertices) / ringSegments * TAU;
+              vertex(sin(th) * ringRadius, cos(th) * ringRadius, 0);
+            }
+            for (int v = segmentVertices; v >= 0; v--) {
+              float th = (s + (float)v / segmentVertices) / ringSegments * TAU;
+              vertex(sin(th) * ringRadius, cos(th) * ringRadius, -ringWidth);
+            }
+          endShape();
+        }
+      pop();
+    }
   }
 }
 
