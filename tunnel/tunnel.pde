@@ -4,7 +4,7 @@ boolean recording = false;
 boolean mouseControl = false;
 
 // Target frame count, and thus speed, for the recorded animation.
-int numFrames = 240;
+int numFrames = 360;
 // Number of samples to take per frame when recording.
 // Each frame will be an average of these. A higher value gives more of a motion blur effect.
 int samplesPerFrame = 1;
@@ -18,12 +18,15 @@ int cellCount = 50;
 int noiseFrames = 6;
 int noiseSpeed = 4;
 
-int rings = 30;
-int ringRepeats = 2;
-int ringSegments = 40;
+int rings = 20;
+int ringRepeats = 1;
+int ringSegments = 20;
+int ringRotate = 4; // Should be a factor of the number of rings.
 int segmentVertices = 5;
-float ringWidth = 150;
+float ringWidth = 500;
 float ringRadius;
+
+float pointHeight = .75;
 
 color[] colors = { #0E0026, #0E0026, #46104C, #8C1E47, #CC5D28, #FFBB00, #FFBB00 };
 // color[] colors = { #0e0613, #0e0613, #3d1c37, #64284a, #bd4c24, #ff9d1e, #ff9d1e };
@@ -32,14 +35,14 @@ float colorPulseAmount = 0;
 
 
 void setup() {
-  size(500, 500, P3D);
+  size(600, 600, P3D);
   pixelDensity(recording ? 1 : 2);
   smooth(8);
   ellipseMode(RADIUS);
 
-  float fov = TAU / 6;
+  float fov = TAU / 10;
   float cameraZ = (height / 2) / tan(fov / 2);
-  perspective(fov, width / height, cameraZ, cameraZ * 100);
+  perspective(fov, width / height, cameraZ / 10, cameraZ * 100);
 
   ringRadius = sqrt(width * width + height * height) / 2;
 
@@ -70,6 +73,7 @@ float[][] generateCells(int xSize, int ySize, float nt) {
 
 void draw_() {
   background(colors[0]);
+  strokeWeight(.5);
   translate(width / 2, height / 2);
 
   // animation offsets
@@ -80,35 +84,62 @@ void draw_() {
   float noiseFrameOffset = (noiseFrames * t * noiseSpeed) % 1;
 
   int totalRings = rings * ringRepeats;
+  float segmentAngle = TAU / ringSegments;
 
-  // stroke(255);
-  noStroke();
   for (int repeat = ringRepeats - 1; repeat >= 0; repeat--) {
-    for (int r = rings - 1; r >= 0; r--) {
-      int cr = (r + ringOffset) % rings;
-      int rr = r + rings * repeat;
+    for (int r = rings - 1; r >= 0; r--) { // Number of rings away from the camera for this repeat.
+      int cr = (r + ringOffset) % rings; // Cell x-value for this ring.
+      int rr = r + rings * repeat; // Number of rings away from the camera overall.
 
       push();
         translate(0, 0, (-rr + thisRingOffset) * ringWidth);
+        rotateZ((float)(cr % ringRotate) / ringRotate * segmentAngle);
 
-        float fade = easeOut((float)(totalRings - rr) / totalRings);
+        float fade = (float)(totalRings - rr) / totalRings;
+        float easeFade = easeOut(fade);
+        stroke(255, fade * fade * fade * 255 * 0.75);
 
-        for (int s = 0; s < ringSegments; s++) {
+        for (int s = 0; s < ringSegments; s++) { // Cell y-value for this segment.
           float cell = cells[noiseFrame][cr][s];
           float nextCell = cells[(noiseFrame + 1) % noiseFrames][cr][s];
           float value = lerp(cell, nextCell, noiseFrameOffset);
-          fill(getColor(value * fade));
+
+          fill(getColor(value * easeFade));
+
+          float pointRadius = (1 - ease(value, 4) * pointHeight) * ringRadius;
+          float startAngle = s * segmentAngle;
+          float midAngle = (s + .5) * segmentAngle;
+          float endAngle = (s + 1) * segmentAngle;
+
+          beginShape();
+            vertex(sin(startAngle) * ringRadius, cos(startAngle) * ringRadius, 0);
+            vertex(sin(startAngle) * ringRadius, cos(startAngle) * ringRadius, -ringWidth);
+            vertex(sin(midAngle) * pointRadius, cos(midAngle) * pointRadius, -ringWidth / 2);
+          endShape();
+
+          beginShape();
+            vertex(sin(endAngle) * ringRadius, cos(endAngle) * ringRadius, -ringWidth);
+            vertex(sin(endAngle) * ringRadius, cos(endAngle) * ringRadius, 0);
+            vertex(sin(midAngle) * pointRadius, cos(midAngle) * pointRadius, -ringWidth / 2);
+          endShape();
 
           beginShape();
             for (int v = 0; v <= segmentVertices; v++) {
-              float th = (s + (float)v / segmentVertices) / ringSegments * TAU;
-              vertex(sin(th) * ringRadius, cos(th) * ringRadius, 0);
+              float vAngle = map(v, 0, segmentVertices, startAngle, endAngle);
+              vertex(sin(vAngle) * ringRadius, cos(vAngle) * ringRadius, 0);
             }
+
+            vertex(sin(midAngle) * pointRadius, cos(midAngle) * pointRadius, -ringWidth / 2);
+          endShape(CLOSE);
+
+          beginShape();
             for (int v = segmentVertices; v >= 0; v--) {
-              float th = (s + (float)v / segmentVertices) / ringSegments * TAU;
-              vertex(sin(th) * ringRadius, cos(th) * ringRadius, -ringWidth);
+              float vAngle = map(v, 0, segmentVertices, startAngle, endAngle);
+              vertex(sin(vAngle) * ringRadius, cos(vAngle) * ringRadius, -ringWidth);
             }
-          endShape();
+
+            vertex(sin(midAngle) * pointRadius, cos(midAngle) * pointRadius, -ringWidth / 2);
+          endShape(CLOSE);
         }
       pop();
     }
