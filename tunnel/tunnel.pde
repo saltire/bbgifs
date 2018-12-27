@@ -19,14 +19,16 @@ int noiseFrames = 6;
 int noiseSpeed = 4;
 
 int rings = 20;
-int ringRepeats = 1;
+int ringRepeats = 2;
 int ringSegments = 20;
 int ringRotate = 4; // Should be a factor of the number of rings.
 int segmentVertices = 5;
 float ringWidth = 500;
-float ringRadius;
+float ringRadiusMult = 1.5;
+float pointHeight = .4;
 
-float pointHeight = .75;
+float ringRadius;
+float segmentAngle;
 
 color[] colors = { #0E0026, #0E0026, #46104C, #8C1E47, #CC5D28, #FFBB00, #FFBB00 };
 // color[] colors = { #0e0613, #0e0613, #3d1c37, #64284a, #bd4c24, #ff9d1e, #ff9d1e };
@@ -40,11 +42,12 @@ void setup() {
   smooth(8);
   ellipseMode(RADIUS);
 
+  // Set camera field of view and clipping range.
   float fov = TAU / 10;
   float cameraZ = (height / 2) / tan(fov / 2);
   perspective(fov, width / height, cameraZ / 10, cameraZ * 100);
 
-  ringRadius = sqrt(width * width + height * height) / 2;
+  result = new int[width * height][3];
 
   // Pregenerate Perlin noise values for each cell, and for each frame of noise.
   noiseSeed(2);
@@ -56,7 +59,8 @@ void setup() {
     cells[nf] = generateCells(rings, ringSegments, (float)nf / noiseFrames);
   }
 
-  result = new int[width * height][3];
+  ringRadius = sqrt(width * width + height * height) / 2 * ringRadiusMult;
+  segmentAngle = TAU / ringSegments;
 }
 
 float[][] generateCells(int xSize, int ySize, float nt) {
@@ -84,7 +88,6 @@ void draw_() {
   float noiseFrameOffset = (noiseFrames * t * noiseSpeed) % 1;
 
   int totalRings = rings * ringRepeats;
-  float segmentAngle = TAU / ringSegments;
 
   for (int repeat = ringRepeats - 1; repeat >= 0; repeat--) {
     for (int r = rings - 1; r >= 0; r--) { // Number of rings away from the camera for this repeat.
@@ -104,46 +107,54 @@ void draw_() {
           float nextCell = cells[(noiseFrame + 1) % noiseFrames][cr][s];
           float value = lerp(cell, nextCell, noiseFrameOffset);
 
-          fill(getColor(value * easeFade));
+          push();
+            fill(getColor(value * easeFade));
+            rotateZ(s * segmentAngle);
 
-          float pointRadius = (1 - ease(value, 4) * pointHeight) * ringRadius;
-          float startAngle = s * segmentAngle;
-          float midAngle = (s + .5) * segmentAngle;
-          float endAngle = (s + 1) * segmentAngle;
-
-          beginShape();
-            vertex(sin(startAngle) * ringRadius, cos(startAngle) * ringRadius, 0);
-            vertex(sin(startAngle) * ringRadius, cos(startAngle) * ringRadius, -ringWidth);
-            vertex(sin(midAngle) * pointRadius, cos(midAngle) * pointRadius, -ringWidth / 2);
-          endShape();
-
-          beginShape();
-            vertex(sin(endAngle) * ringRadius, cos(endAngle) * ringRadius, -ringWidth);
-            vertex(sin(endAngle) * ringRadius, cos(endAngle) * ringRadius, 0);
-            vertex(sin(midAngle) * pointRadius, cos(midAngle) * pointRadius, -ringWidth / 2);
-          endShape();
-
-          beginShape();
-            for (int v = 0; v <= segmentVertices; v++) {
-              float vAngle = map(v, 0, segmentVertices, startAngle, endAngle);
-              vertex(sin(vAngle) * ringRadius, cos(vAngle) * ringRadius, 0);
-            }
-
-            vertex(sin(midAngle) * pointRadius, cos(midAngle) * pointRadius, -ringWidth / 2);
-          endShape(CLOSE);
-
-          beginShape();
-            for (int v = segmentVertices; v >= 0; v--) {
-              float vAngle = map(v, 0, segmentVertices, startAngle, endAngle);
-              vertex(sin(vAngle) * ringRadius, cos(vAngle) * ringRadius, -ringWidth);
-            }
-
-            vertex(sin(midAngle) * pointRadius, cos(midAngle) * pointRadius, -ringWidth / 2);
-          endShape(CLOSE);
+            drawSpike(value);
+          pop();
         }
       pop();
     }
   }
+}
+
+void drawSpike(float value) {
+  float pointRadius = (1 - ease(value, 4) * pointHeight) * ringRadius;
+  float left = -segmentAngle / 2;
+  float right = segmentAngle / 2;
+
+  // back
+  beginShape();
+    for (int v = segmentVertices; v >= 0; v--) {
+      float vAngle = map(v, 0, segmentVertices, left, right);
+      vertex(sin(vAngle) * ringRadius, cos(vAngle) * ringRadius, -ringWidth);
+    }
+
+    vertex(0, pointRadius, -ringWidth / 2);
+  endShape(CLOSE);
+
+  // sides
+  beginShape();
+    vertex(sin(left) * ringRadius, cos(left) * ringRadius, 0);
+    vertex(sin(left) * ringRadius, cos(left) * ringRadius, -ringWidth);
+    vertex(0, pointRadius, -ringWidth / 2);
+  endShape();
+  beginShape();
+    vertex(sin(right) * ringRadius, cos(right) * ringRadius, -ringWidth);
+    vertex(sin(right) * ringRadius, cos(right) * ringRadius, 0);
+    vertex(0, pointRadius, -ringWidth / 2);
+  endShape();
+
+  // front
+  beginShape();
+    for (int v = 0; v <= segmentVertices; v++) {
+      float vAngle = map(v, 0, segmentVertices, left, right);
+      vertex(sin(vAngle) * ringRadius, cos(vAngle) * ringRadius, 0);
+    }
+
+    vertex(0, pointRadius, -ringWidth / 2);
+  endShape(CLOSE);
 }
 
 color getColor(float colorValue) {
