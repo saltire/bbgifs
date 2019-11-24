@@ -30,8 +30,7 @@ float pointHeight = .4;
 float ringRadius;
 float segmentAngle;
 
-color[] colors = { #0E0026, #0E0026, #46104C, #8C1E47, #CC5D28, #FFBB00, #FFBB00 };
-// color[] colors = { #0e0613, #0e0613, #3d1c37, #64284a, #bd4c24, #ff9d1e, #ff9d1e };
+color[] colors = { #27233A, #27233A, #2C6C75, #319470, #ACECA1, #EAEFD3 };
 int colorSpeed = 4;
 float colorPulseAmount = 0;
 
