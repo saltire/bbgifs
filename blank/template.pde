@@ -4,7 +4,7 @@ boolean recording = false;
 boolean mouseControl = false;
 
 // Target frame count, and thus speed, for the recorded animation.
-int numFrames = 260;
+int numFrames = 100;
 // Number of samples to take per frame when recording.
 // Each frame will be an average of these. A higher value gives more of a motion blur effect.
 int samplesPerFrame = 4;

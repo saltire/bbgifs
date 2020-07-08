@@ -1,17 +1,3 @@
-// True to save image files.
-boolean recording = false;
-// If not recording, true to control animation with mouse; false to play on loop.
-boolean mouseControl = false;
-
-// Target frame count, and thus speed, for the recorded animation.
-int numFrames = 300;
-// Number of samples to take per frame when recording.
-// Each frame will be an average of these. A higher value gives more of a motion blur effect.
-int samplesPerFrame = 4;
-// Time period, in frames, over which to spread out the samples.
-float shutterAngle = .3;
-
-
 float[][] cells;
 float cellSize;
 int cellCount = 20;
@@ -25,10 +11,13 @@ color topColor = #484c46;
 color[] colors = { #e57272, #e5a667, #e5e567, #a2d86c, #72ace5, #ac72e5 };
 int colorSpeed = 3;
 
-void setup() {
+void settings() {
   size(750, 750, P3D);
   pixelDensity(recording ? 1 : 2);
   smooth(8);
+}
+
+void setup_() {
   ortho(-width / 2, width / 2, -height / 2, height / 2, -10000, 10000);
   ellipseMode(RADIUS);
 
