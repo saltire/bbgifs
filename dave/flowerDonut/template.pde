@@ -38,11 +38,16 @@ float c01(float value) {
 void draw() {
   // Control the animation with the mouse position on the X-axis.
   if (!recording) {
-    t = mouseX * 1.0 / width;
-    c = mouseY * 1.0 / height;
+    if (mouseControl) {
+      t = mouseX * 1.0 / width;
+      c = mouseY * 1.0 / height;
 
-    if (mousePressed) {
-      println(c);
+      if (mousePressed) {
+        println(c);
+      }
+    }
+    else {
+      t = norm((frameCount - 1) % numFrames, 0, numFrames);
     }
 
     draw_();

@@ -6,7 +6,7 @@ float ease(float p) {
 }
 
 float ease(float p, float g) {
-  if (p < 0.5) 
+  if (p < 0.5)
     return 0.5 * pow(2*p, g);
   else
     return 1 - 0.5 * pow(2*(1 - p), g);
@@ -31,10 +31,17 @@ float c01(float g) {
 void draw() {
 
   if (!recording) {
-    t = mouseX*1.0/width;
-    c = mouseY*1.0/height;
-    if (mousePressed)
-      println(c);
+    if (mouseControl) {
+      t = mouseX * 1.0 / width;
+      c = mouseY * 1.0 / height;
+
+      if (mousePressed) {
+        println(c);
+      }
+    }
+    else {
+      t = norm((frameCount - 1) % numFrames, 0, numFrames);
+    }
     draw_();
   } else {
     for (int i=0; i<width*height; i++)
@@ -55,9 +62,9 @@ void draw() {
 
     loadPixels();
     for (int i=0; i<pixels.length; i++)
-      pixels[i] = 0xff << 24 | 
-        int(result[i][0]*1.0/samplesPerFrame) << 16 | 
-        int(result[i][1]*1.0/samplesPerFrame) << 8 | 
+      pixels[i] = 0xff << 24 |
+        int(result[i][0]*1.0/samplesPerFrame) << 16 |
+        int(result[i][1]*1.0/samplesPerFrame) << 8 |
         int(result[i][2]*1.0/samplesPerFrame);
     updatePixels();
 
@@ -70,10 +77,11 @@ void draw() {
 //////////////////////////////////////////////////////////////////////////////
 
 int samplesPerFrame = 4;
-int numFrames = 180;        
+int numFrames = 180;
 float shutterAngle = .6;
 
 boolean recording = false;
+boolean mouseControl = false;
 
 void setup() {
   size(720, 720, P3D);
@@ -133,7 +141,7 @@ void slice(float y1, float y2, float q) {
 }
 
 void draw_() {
-  background(250); 
+  background(250);
   push();
   translate(width/2, height/2);
   fill(#30E0FF);

@@ -1,4 +1,5 @@
 boolean recording = false;
+boolean mouseControl = false;
 
 int samplesPerFrame = 4;
 int numFrames = 180;
