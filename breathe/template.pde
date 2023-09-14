@@ -1,5 +1,5 @@
 // True to save image files.
-boolean recording = true;
+boolean recording = false;
 // If not recording, true to control animation with mouse; false to play on loop.
 boolean mouseControl = false;
 
