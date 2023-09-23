@@ -6,8 +6,20 @@ color[] green = new color[] {
   #d8f3dc, #b7e4c7, #95d5b2, #74c69d, #52b788, #40916c, #2d6a4f, #1b4332, #081c15
 };
 
+color[] greypurple = new color[] {
+  #3c2f36, #43363d, #4a3e44, #51454b, #594c53, #60535a, #675b61, #6e6268, #75696f
+};
+
 color[] pearl = new color[] {
   #fbf8cc, #fde4cf, #ffcfd2, #f1c0e8, #cfbaf0, #a3c4f3, #90dbf4, #8eecf5, #98f5e1, #b9fbc0
+};
+
+color[] sepia = new color[] {
+  #1f140d, #2f221a, #3e2f27, #4e3d34, #5d4a41, #6d584e, #7c655b, #8c7368, #9b8074, #a48c81
+};
+
+color[] sepiapurple = new color[] {
+  #4b303e, #5a3b43, #694647, #78514c, #875c51, #956655, #a4715a, #b37c5f, #c28763, #d19268
 };
 
 color[] spring = new color[] {
@@ -28,4 +40,8 @@ color[] vaporwave = new color[] {
 
 color[] water = new color[] {
   #03045e, #023e8a, #0077b6, #0096c7, #00b4d8, #48cae4, #90e0ef, #ade8f4, #caf0f8
+};
+
+color[] yellow = new color[] {
+  #ff930f, #ffa019, #ffad22, #ffba2c, #ffc635, #ffd33f, #ffe048, #ffed52, #fff95b
 };
